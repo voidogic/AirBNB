@@ -67,6 +67,10 @@ app.get("/", (req, res) => {
 app.use("/listings", listings);
 app.use("/listings/:id/reviews", reviews);
 
+
+
+
+
 // 404 Route
 app.all("*", (req, res, next) => {
     throw new ExpressError(404, "Page Not Found!");
