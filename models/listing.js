@@ -9,13 +9,8 @@ const listingSchema = new Schema({
   },
   description: String,
   image: {
-    type: String,
-    default:
-      "https://images.unsplash.com/photo-1625505826533-5c80aca7d157?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fGdvYXxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=800&q=60",
-    set: (v) =>
-      v === ""
-        ? "https://images.unsplash.com/photo-1625505826533-5c80aca7d157?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fGdvYXxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=800&q=60"
-        : v,
+    filename: String,
+    url: String,
   },
   price: Number,
   location: String,
@@ -26,14 +21,37 @@ const listingSchema = new Schema({
       ref: "Review",
     },
   ],
+
+  owner: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
+
+  geometry: {
+    type: {
+      type: String, // Don't do `{ location: { type: String } }`
+      enum: ['Point'], // 'location.type' must be 'Point'
+      required: true
+    },
+    coordinates: {
+      type: [Number],
+      required: true
+    }
+  }
+});
+
+// Add a pre-save middleware to validate the listing
+listingSchema.pre('save', function(next) {
+  console.log("Saving listing:", this);
+  next();
 });
 
 listingSchema.post("findOneAndDelete", async (listing) => {
   if(listing) {
+    console.log("Deleting reviews for listing:", listing._id);
     await Review.deleteMany({_id : {$in: listing.reviews}});
   }
-})
-
+});
 
 const Listing = mongoose.model("Listing", listingSchema);
 module.exports = Listing;

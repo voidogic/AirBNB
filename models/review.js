@@ -11,7 +11,17 @@ const reviewSchema = new Schema({
     cretedAt: {
         type: Date,
         default: Date.now()
-    }
+    },
+    author: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+    },
+});
+
+// Add a pre-save middleware to validate the review
+reviewSchema.pre('save', function(next) {
+    console.log("Saving review:", this);
+    next();
 });
 
 module.exports = mongoose.model("Review", reviewSchema);
