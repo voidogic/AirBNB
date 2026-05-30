@@ -7,49 +7,55 @@ const listingSchema = new Schema({
     type: String,
     required: true,
   },
-  description: String,
-  image: {
-    filename: String,
-    url: String,
+  description: {
+    type: String,
   },
-  price: Number,
-  location: String,
-  country: String,
+  image: {
+    filename: {
+      type: String,
+    },
+    url: {
+      type: String,
+    },
+  },
+  price: {
+    type: Number,
+  },
+  location: {
+    type: String,
+  },
+  country: {
+    type: String,
+  },
   reviews: [
     {
       type: Schema.Types.ObjectId,
       ref: "Review",
     },
   ],
-
   owner: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: "User",
   },
-
   geometry: {
     type: {
-      type: String, // Don't do `{ location: { type: String } }`
-      enum: ['Point'], // 'location.type' must be 'Point'
-      required: true
+      type: String,
+      enum: ["Point"],
+      required: true,
     },
     coordinates: {
       type: [Number],
-      required: true
-    }
-  }
-});
-
-// Add a pre-save middleware to validate the listing
-listingSchema.pre('save', function(next) {
-  console.log("Saving listing:", this);
-  next();
+      required: true,
+    },
+  },
+  category: {
+    type: String,
+  },
 });
 
 listingSchema.post("findOneAndDelete", async (listing) => {
-  if(listing) {
-    console.log("Deleting reviews for listing:", listing._id);
-    await Review.deleteMany({_id : {$in: listing.reviews}});
+  if (listing) {
+    await Review.deleteMany({ _id: { $in: listing.reviews } });
   }
 });
 
